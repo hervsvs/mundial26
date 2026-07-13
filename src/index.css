@@ -1,0 +1,305 @@
+/* ============================================================
+   EL COLADO DEL MUNDIAL — tema oscuro tipo cancha de noche
+   ============================================================ */
+
+:root {
+  --bg: #0b1e13;
+  --bg2: #123524;
+  --card: #16281d;
+  --border: #2a4a35;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #4ade80;
+  --gold: #facc15;
+  --bad: #f87171;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app { max-width: 760px; margin: 0 auto; padding: 0 16px 40px; }
+
+.app-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.app-logo { font-weight: 800; color: var(--gold); font-size: 1.05rem; }
+.app-country { color: var(--accent); font-weight: 700; font-size: 0.95rem; }
+
+.screen { display: flex; flex-direction: column; gap: 14px; padding: 8px 0; }
+
+h1, h2, h3 { margin: 0; }
+.game-title { color: var(--gold); text-align: center; font-size: 2rem; }
+.tagline { text-align: center; color: var(--muted); margin: 0; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+}
+.card p { margin: 0; line-height: 1.5; }
+
+.hint { color: var(--muted); font-size: 0.9rem; margin: 0; }
+
+/* ---- Botones ---- */
+.btn {
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 10px 18px; font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: transform 0.06s, filter 0.15s;
+}
+.btn:hover { filter: brightness(1.2); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: #14532d; border-color: var(--accent); color: #dcfce7; }
+.btn-big { padding: 14px 24px; font-size: 1.15rem; }
+.btn-ghost { background: transparent; color: var(--muted); border-style: dashed; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---- Inicio ---- */
+.start-screen { align-items: stretch; }
+.country-label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; }
+.country-input {
+  background: #0f172a33; border: 2px solid var(--border); border-radius: 12px;
+  color: var(--text); font-size: 1.2rem; padding: 12px 14px; outline: none;
+}
+.country-input:focus { border-color: var(--accent); }
+.stats-card { color: var(--muted); }
+.replaced-list { display: flex; flex-direction: column; gap: 8px; font-size: 0.92rem; }
+.replaced-row small { display: block; color: var(--muted); }
+
+/* ---- Cartas de jugador ---- */
+.cards-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
+}
+.cards-grid.compact { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.player-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  position: relative;
+}
+.player-card.pickable { cursor: pointer; }
+.player-card.pickable:hover { border-color: var(--accent); transform: translateY(-2px); }
+.player-card.picked { opacity: 0.35; cursor: not-allowed; }
+.player-card-top { display: flex; align-items: center; gap: 10px; width: 100%; }
+.player-name { display: flex; flex-direction: column; }
+.player-name small { color: var(--muted); }
+.ovr {
+  font-size: 1.3rem; font-weight: 900; border-radius: 10px; padding: 4px 8px;
+}
+.ovr-elite { background: #713f12; color: var(--gold); }
+.ovr-good { background: #14532d; color: var(--accent); }
+.ovr-meh { background: #1e293b; color: var(--muted); }
+.picked-badge {
+  position: absolute; inset: auto auto 8px auto; font-weight: 900; color: var(--bad);
+  transform: rotate(-8deg); border: 2px solid var(--bad); border-radius: 8px; padding: 2px 8px;
+}
+.group-banner { border-color: var(--gold); }
+.picks-summary { font-size: 0.92rem; color: var(--muted); }
+
+/* ---- Reclutamiento ---- */
+.recruit-card { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.recruit-story { font-style: italic; color: var(--text); line-height: 1.55; }
+.recruit-card.gem { border-color: var(--gold); box-shadow: 0 0 24px #facc1544; }
+
+/* ---- Tabla ---- */
+.standings { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px; overflow: hidden; }
+.standings th, .standings td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
+.standings .tl { text-align: left; }
+.standings thead { color: var(--muted); font-size: 0.85rem; }
+.you-row { background: #14532d55; font-weight: 700; }
+
+/* ---- Partido ---- */
+.next-match { text-align: center; }
+.next-match-title { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+.versus { display: flex; justify-content: center; gap: 14px; font-size: 1.25rem; font-weight: 800; margin: 8px 0; flex-wrap: wrap; }
+.vs { color: var(--gold); }
+.moment { text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; min-height: 160px; justify-content: center; }
+.moment-emoji { font-size: 3rem; }
+.event-malo { border-color: var(--bad); }
+.event-bueno { border-color: var(--accent); }
+.event-neutro { border-color: var(--muted); }
+.real-badge {
+  display: inline-block; margin-left: 8px; font-size: 0.65rem; vertical-align: middle;
+  background: #7f1d1d; color: #fecaca; border-radius: 6px; padding: 2px 6px;
+}
+.goal-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.goal-yours { color: var(--accent); font-weight: 700; }
+.goal-theirs { color: var(--bad); }
+.final-score { font-size: 1.8rem; font-weight: 900; }
+.pens { color: var(--gold); font-weight: 700; }
+.bracket-list { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+/* ---- Marcador en vivo ---- */
+.scoreboard {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;
+  background: #0f172a; border: 1px solid var(--border); border-radius: 14px;
+  padding: 12px 16px; text-align: center; position: relative;
+}
+.sb-team { font-weight: 700; font-size: 0.95rem; }
+.sb-team:first-child { text-align: right; }
+.sb-team:nth-child(3) { text-align: left; }
+.sb-score {
+  font-size: 2rem; font-weight: 900; color: var(--gold);
+  background: #1e293b; border-radius: 10px; padding: 2px 16px; min-width: 90px;
+}
+.sb-minute {
+  grid-column: 1 / -1; color: var(--accent); font-weight: 800; font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+.live-card { min-height: 120px; }
+.live-dots { color: var(--accent); animation: blink 1.1s infinite; letter-spacing: 6px; }
+@keyframes blink { 50% { opacity: 0.2; } }
+.moment-news {
+  color: var(--bad); font-weight: 900; letter-spacing: 3px; font-size: 0.8rem;
+}
+.affected-line { color: var(--muted); }
+
+/* ---- Formación ---- */
+.formation-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+.formation-btn { display: flex; flex-direction: column; gap: 2px; padding: 8px 14px; }
+.formation-btn small { color: var(--muted); font-weight: 400; }
+.formation-btn.active { border-color: var(--gold); color: var(--gold); }
+.pitch {
+  background: linear-gradient(180deg, #14532d 0%, #166534 50%, #14532d 100%);
+  border: 2px solid var(--border); border-radius: 14px;
+  display: flex; flex-direction: column; gap: 18px; padding: 22px 10px;
+  background-image: repeating-linear-gradient(180deg, rgba(255,255,255,0.03) 0 40px, transparent 40px 80px);
+}
+.pitch-row { display: flex; justify-content: space-evenly; gap: 6px; }
+.pitch-chip {
+  background: #0f172acc; border: 1px solid var(--border); border-radius: 10px;
+  padding: 5px 8px; display: flex; align-items: center; gap: 6px; font-size: 0.78rem;
+  max-width: 130px;
+}
+.pitch-chip.oop { border-color: var(--gold); }
+.chip-ovr { font-weight: 900; color: var(--accent); }
+.pitch-chip.oop .chip-ovr { color: var(--gold); }
+.chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Banderas SVG (flag-icons, importadas como <img>) ---- */
+.flag {
+  width: auto;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  vertical-align: -0.12em;
+  display: inline-block;
+}
+.flag-sm { height: 0.95em; }
+.flag-md { height: 1.2em; }
+.flag-lg { height: 1.7rem; }
+.flag-xl { height: 2.5rem; border-radius: 5px; }
+.slot-group-flags .flag { margin: 0 4px; }
+
+/* ---- Fuerza destacada / botín ---- */
+.strength-num { font-size: 1.15rem; color: var(--text); }
+.loot-item { white-space: nowrap; }
+.loot-pos { color: var(--accent); }
+
+/* ---- Slot machine (sorteos) ---- */
+.slot-machine {
+  background: #0f172a; border: 3px solid var(--gold); border-radius: 16px;
+  padding: 18px; text-align: center; overflow: hidden;
+}
+.slot-machine.slot-done { box-shadow: 0 0 30px #facc1555; }
+.slot-window { min-height: 64px; display: flex; align-items: center; justify-content: center; }
+.slot-group { display: flex; flex-direction: column; gap: 6px; }
+.slot-group-letter { font-size: 1.6rem; font-weight: 900; color: var(--gold); }
+.slot-group-flags { font-size: 1.4rem; letter-spacing: 6px; }
+.slot-team { display: flex; align-items: center; gap: 12px; font-size: 1.4rem; font-weight: 800; }
+.slot-team-flag { font-size: 2.2rem; }
+
+/* ---- Sorteo ---- */
+.draw-result { text-align: center; color: var(--gold); font-size: 2.4rem; }
+.replaced-banner { text-align: center; border-color: var(--gold); }
+.rival-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.rival-card { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.rival-flag { font-size: 2.6rem; }
+.rival-card small { color: var(--muted); }
+
+/* ---- Comodín ---- */
+.wildcard-card { border-color: #a78bfa; display: flex; flex-direction: column; gap: 10px; }
+.wildcard-card.armed { box-shadow: 0 0 24px #a78bfa66; }
+.wildcard-head { color: #a78bfa; font-weight: 800; }
+.wildcard-body { display: flex; gap: 12px; align-items: flex-start; }
+.wildcard-body p { margin: 4px 0; color: var(--muted); font-size: 0.9rem; }
+.wildcard-emoji { font-size: 2.2rem; }
+.wildcard-armed-msg { color: #a78bfa; font-weight: 800; text-align: center; }
+.wildcard-armed-banner { border-color: #a78bfa; color: #ddd6fe; text-align: center; }
+
+/* ---- Intro del robo ---- */
+.heist-image {
+  width: 100%; max-width: 460px; border-radius: 16px; align-self: center;
+  border: 2px solid var(--border);
+}
+.team-banner { display: flex; align-items: center; gap: 14px; border-color: var(--gold); }
+.team-banner-flag { font-size: 3.2rem; }
+.team-banner-name { font-size: 1.5rem; }
+
+/* ---- Fin de grupos / ticker ---- */
+.group-end-msg { text-align: center; font-size: 1.1rem; font-weight: 700; }
+.group-end-msg.ok { border-color: var(--accent); }
+.group-end-msg.out { border-color: var(--bad); }
+.goal-annulled { opacity: 0.55; text-decoration: line-through; }
+.annulled-tag { color: var(--bad); text-decoration: none; display: inline-block; }
+.ticker-event { list-style: none; }
+.ticker-event .card { margin: 6px 0; }
+
+/* ---- Header ---- */
+.header-right { display: flex; align-items: center; gap: 10px; }
+.lang-toggle {
+  background: transparent; border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); padding: 4px 10px; cursor: pointer; font-weight: 700; font-size: 0.8rem;
+}
+.lang-toggle:hover { border-color: var(--gold); }
+
+/* ---- Final ---- */
+.end-screen h1 { text-align: center; color: var(--gold); }
+.champion-hero {
+  text-align: center; padding: 26px 16px; border-radius: 18px;
+  background: radial-gradient(ellipse at top, #4a3a08 0%, #1c1503 70%);
+  border: 2px solid var(--gold); box-shadow: 0 0 42px #facc1555;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.champion-trophy { font-size: 4.5rem; animation: trophy-pop 0.9s ease; }
+.champion-country { font-size: 2.2rem; font-weight: 900; color: var(--gold); }
+.champion-sub { letter-spacing: 4px; color: #fde68a; font-weight: 700; font-size: 0.85rem; }
+.champion-confetti { font-size: 1.3rem; letter-spacing: 8px; animation: blink 1.6s infinite; }
+@keyframes trophy-pop {
+  0% { transform: scale(0) rotate(-20deg); }
+  70% { transform: scale(1.25) rotate(6deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.world-champ-card { text-align: center; font-weight: 700; border-color: var(--gold); }
+.history-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.hist-G { color: var(--accent); }
+.hist-E { color: var(--gold); }
+.hist-P { color: var(--bad); }
+.hist-label { color: var(--muted); font-size: 0.85rem; margin-right: 4px; }
+.hist-event { color: var(--muted); }
+.share-preview {
+  width: 100%; max-width: 380px; border-radius: 14px; border: 1px solid var(--border);
+  align-self: center;
+}
+
+/* ---- Footer / donaciones ---- */
+footer { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 14px; }
+.donate-bar { display: flex; flex-direction: column; gap: 8px; align-items: center; color: var(--muted); }
+.donate-links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.donate-link {
+  color: var(--text); text-decoration: none; border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px; font-size: 0.9rem;
+}
+.donate-link:hover { border-color: var(--gold); color: var(--gold); }
+.footer-note { color: #64748b; font-size: 0.75rem; text-align: center; }
+
+@media (max-width: 480px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .game-title { font-size: 1.5rem; }
+}
