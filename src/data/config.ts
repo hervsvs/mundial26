@@ -9,7 +9,7 @@ export const CONFIG = {
   taglineEn: 'Steal players. Crash the 2026 World Cup. Try to win it.',
 
   // URL pública del juego (se usa en el share de WhatsApp y la imagen)
-  gameUrl: 'https://elcolado.vercel.app',
+  gameUrl: 'https://mundial26-sooty.vercel.app',
 
   // --- DIFICULTAD -------------------------------------------
   // Bonus de fuerza de TU equipo en fase de grupos: calibrado (Monte Carlo,
@@ -45,9 +45,7 @@ export const CONFIG = {
   // --- DONACIONES -------------------------------------------
   // Dejá el link vacío ('') para ocultar una plataforma
   donations: [
-    { name: 'Cafecito', url: 'https://cafecito.app/tuusuario', emoji: '☕' },
-    { name: 'PayPal', url: 'https://paypal.me/tuusuario', emoji: '💙' },
-    { name: 'Buy Me a Coffee', url: 'https://buymeacoffee.com/tuusuario', emoji: '🍺' },
+    { name: 'Cafecito', url: 'https://cafecito.app/colado', emoji: '☕' },
   ],
 
   // --- ANALYTICS (Supabase) ---------------------------------

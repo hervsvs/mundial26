@@ -54,6 +54,8 @@ export interface RunState {
   wildcardId: string
   wildcardUsed: boolean
   wildcardArmed: boolean // activado para el próximo partido
+  // nombre del jugador robado / anulado por el comodín (para mostrarlo)
+  wildcardNote: string | null
   // robo de jugadores
   heistRollsLeft: number
   heistTeamId: string | null
@@ -122,6 +124,7 @@ function load(): GameState {
           s.run.wildcardUsed = false
           s.run.wildcardArmed = false
         }
+        if (s.run.wildcardNote === undefined) s.run.wildcardNote = null
         s.run.finalStage = migrateStage(s.run.finalStage)
         if (s.run.qualifiedInfo === undefined) s.run.qualifiedInfo = null
         if (s.run.thirdPlaceOppId === undefined) s.run.thirdPlaceOppId = null
@@ -215,6 +218,7 @@ function reducer(state: GameState, action: Action): GameState {
         wildcardId: rollWildcard().id,
         wildcardUsed: false,
         wildcardArmed: false,
+        wildcardNote: null,
         heistRollsLeft: 5,
         heistTeamId: randomTeamId(),
         picks: [],
@@ -281,16 +285,32 @@ function reducer(state: GameState, action: Action): GameState {
       if (run.phase !== 'group' && run.phase !== 'knockout') return state
       const wc = wildcardById(run.wildcardId)
       let squad = run.squad
-      // Robo extra: te llevás la figura del rival de ESTE partido para tu plantel
-      if (wc.special === 'steal') {
-        const oppId = currentOpponent(run)
-        if (oppId) {
-          const star = [...playersOf(oppId)].sort((a, b) => b.ovr - a.ovr)[0]
+      let wildcardNote: string | null = null
+      const oppId = currentOpponent(run)
+      const inSquad = new Set(run.squad.map(p => p.id))
+
+      // Robo extra: te llevás al MEJOR jugador disponible del rival de este
+      // partido (que no tengas ya) para tu plantel, y se te informa quién es.
+      if (wc.special === 'steal' && oppId) {
+        const available = playersOf(oppId).filter(p => !inSquad.has(p.id))
+        const star = [...available].sort((a, b) => b.ovr - a.ovr)[0]
+        if (star) {
           const worstIdx = run.squad.reduce((wi, p, i, arr) => (p.ovr < arr[wi].ovr ? i : wi), 0)
           squad = run.squad.map((p, i) => (i === worstIdx ? star : p))
+          wildcardNote = `${star.name} (${star.ovr})`
         }
       }
-      return { ...state, run: { ...run, squad, wildcardUsed: true, wildcardArmed: true } }
+
+      // Cazar a la estrella / denuncia de doping: dejan afuera a la FIGURA
+      // rival (el mejor de campo disponible); se te informa y no te puede
+      // meter gol en el partido.
+      if (wc.disablesOppStar && oppId) {
+        const candidates = playersOf(oppId).filter(p => p.pos !== 'PT' && !inSquad.has(p.id))
+        const star = [...candidates].sort((a, b) => b.ovr - a.ovr)[0]
+        if (star) wildcardNote = `${star.name} (${star.ovr})`
+      }
+
+      return { ...state, run: { ...run, squad, wildcardNote, wildcardUsed: true, wildcardArmed: true } }
     }
 
     case 'recordMatch': {

@@ -33,7 +33,16 @@ function WildcardPanel() {
         </div>
       </div>
       {run.wildcardArmed
-        ? <div className="wildcard-armed-msg">{t.wildcardArmed}</div>
+        ? (
+          <div className="wildcard-armed-msg">
+            {t.wildcardArmed}
+            {run.wildcardNote && (
+              <div className="wildcard-note">
+                {wc.special === 'steal' ? t.wcStole(run.wildcardNote) : t.wcOut(run.wildcardNote)}
+              </div>
+            )}
+          </div>
+        )
         : (
           <button className="btn" onClick={() => dispatch({ type: 'useWildcard' })}>
             {t.wildcardUse}

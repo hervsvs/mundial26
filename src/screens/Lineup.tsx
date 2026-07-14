@@ -43,10 +43,14 @@ export function Lineup() {
           <div key={line} className="pitch-row">
             {lineup.slots.filter(s => s.line === line).map((s, i) => (
               <div key={i} className={`pitch-chip ${s.outOfPosition ? 'oop' : ''}`}
-                title={s.outOfPosition ? t.outOfPos : undefined}>
-                <span className="chip-ovr">{s.effOvr}</span>
-                <span className="chip-name">{s.player.name}</span>
-                {s.outOfPosition && <span className="chip-warn">⚠️</span>}
+                title={s.outOfPosition ? `${s.player.name} (${t.outOfPos})` : s.player.name}>
+                {/* Solo el apellido, con puesto y puntaje debajo: entra una
+                    línea de 4 (o 5) en pantalla de celular */}
+                <span className="chip-name">{s.player.name.split(' ').pop()}</span>
+                <span className="chip-meta">
+                  {s.line} · <span className="chip-ovr">{s.effOvr}</span>
+                  {s.outOfPosition && ' ⚠️'}
+                </span>
               </div>
             ))}
           </div>

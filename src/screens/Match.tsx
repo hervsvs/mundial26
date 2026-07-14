@@ -60,7 +60,20 @@ export function Match({ onDone }: { onDone: () => void }) {
       const m = day.find(([h, a]) => h === YOUR_ID || a === YOUR_ID)!
       oppId = m[0] === YOUR_ID ? m[1] : m[0]
     }
+    // Comodín activado para este partido
+    const wildcard = run.wildcardArmed ? wildcardById(run.wildcardId) : null
+
+    // Pool de goleadores del rival: excluye a los jugadores que le robaste
+    // (juegan para VOS) y a la figura anulada por el comodín (no puede
+    // meterte gol). Si queda vacío, cae al plantel completo.
     const oppSquad = playersOf(oppId)
+    const squadIds = new Set(run.squad.map(p => p.id))
+    let oppPool = oppSquad.filter(p => !squadIds.has(p.id))
+    if (wildcard?.disablesOppStar && run.wildcardNote) {
+      const starName = run.wildcardNote.replace(/ \(\d+\)$/, '')
+      oppPool = oppPool.filter(p => p.name !== starName)
+    }
+    if (oppPool.filter(p => p.pos !== 'PT').length === 0) oppPool = oppSquad
 
     // UN solo evento, filtrado por rival (vsTeam) e instancia (stage)
     const event = rollEvent(oppId, knockout ? 'eliminatorias' : 'grupos')
@@ -73,9 +86,6 @@ export function Match({ onDone }: { onDone: () => void }) {
         ? candidates.reduce((a, b) => (b.ovr > a.ovr ? b : a))
         : candidates[Math.floor(rnd() * candidates.length)]
     }
-
-    // Comodín activado para este partido
-    const wildcard = run.wildcardArmed ? wildcardById(run.wildcardId) : null
 
     const groupBonus = knockout ? 0 : CONFIG.groupStageBonus
     // el 3er puesto usa el bonus de la semifinal (índice 3)
@@ -92,7 +102,7 @@ export function Match({ onDone }: { onDone: () => void }) {
       kind: 'goal' as const, minute, yours: true, scorer: pickScorer(run.squad, rnd), annulled: false,
     }))
     const oppGoals: GoalItem[] = goalMinutes(raw.ag, rnd).map(minute => ({
-      kind: 'goal' as const, minute, yours: false, scorer: pickScorer(oppSquad, rnd), annulled: false,
+      kind: 'goal' as const, minute, yours: false, scorer: pickScorer(oppPool, rnd), annulled: false,
     }))
 
     // Goles extra del comodín (ej: el penal de Infantino)
@@ -107,12 +117,22 @@ export function Match({ onDone }: { onDone: () => void }) {
     //  positivo = agrega goles a ese lado · negativo = anula goles existentes
     const isDescuento = event?.moment === 'descuento'
 
-    // Anula hasta n goles del arreglo; devuelve el minuto del último anulado
-    const annul = (arr: GoalItem[], n: number): number => {
+    // Anula n goles del arreglo; devuelve el minuto del último anulado.
+    // Si el lado no tiene goles suficientes, el gol se INVENTA igual (pasa
+    // y el VAR lo revierte), así el tachado SIEMPRE se ve en el ticker.
+    const annul = (arr: GoalItem[], n: number, yours: boolean): number => {
+      while (arr.length < n) {
+        arr.push({
+          kind: 'goal',
+          minute: isDescuento ? 91 + Math.floor(rnd() * 7) : 15 + Math.floor(rnd() * 70),
+          yours,
+          scorer: pickScorer(yours ? run.squad : oppPool, rnd),
+          annulled: false,
+        })
+      }
       const sorted = [...arr].sort((a, b) => a.minute - b.minute)
-      const k = Math.min(n, sorted.length)
       let lastMinute = 0
-      for (let i = 0; i < k; i++) {
+      for (let i = 0; i < n; i++) {
         const g = sorted[sorted.length - 1 - i]
         g.annulled = true
         if (isDescuento) g.minute = 91 + Math.floor(rnd() * 7)
@@ -129,7 +149,7 @@ export function Match({ onDone }: { onDone: () => void }) {
           : Math.min(89, afterMinute + 1 + Math.floor(rnd() * Math.max(1, 89 - afterMinute)))
         arr.push({
           kind: 'goal', minute, yours,
-          scorer: pickScorer(yours ? run.squad : oppSquad, rnd), annulled: false,
+          scorer: pickScorer(yours ? run.squad : oppPool, rnd), annulled: false,
         })
       }
     }
@@ -143,17 +163,17 @@ export function Match({ onDone }: { onDone: () => void }) {
         // los efectos de previa reparten los goles en cualquier minuto
         if (yg > 0) addGoals(yourGoals, yg, true, 4)
         if (og > 0) addGoals(oppGoals, og, false, 4)
-        if (yg < 0) annul(yourGoals, -yg)
-        if (og < 0) annul(oppGoals, -og)
+        if (yg < 0) annul(yourGoals, -yg, true)
+        if (og < 0) annul(oppGoals, -og, false)
       } else {
         let evMinute = isDescuento ? 90 : 20 + Math.floor(rnd() * 60)
         // primero las anulaciones (el evento se muestra sobre el gol anulado)
         if (yg < 0) {
-          const m = annul(yourGoals, -yg)
+          const m = annul(yourGoals, -yg, true)
           if (m > 0) evMinute = m
         }
         if (og < 0) {
-          const m = annul(oppGoals, -og)
+          const m = annul(oppGoals, -og, false)
           if (m > 0) evMinute = m
         }
         // después los goles agregados (van DESPUÉS del evento)
@@ -246,6 +266,11 @@ export function Match({ onDone }: { onDone: () => void }) {
       {wildcard && (
         <div className="card wildcard-armed-banner">
           {wildcard.emoji} {t.wildcardArmed}: <strong>{wcTitle(wildcard, lang)}</strong>
+          {run.wildcardNote && (
+            <div className="wildcard-note">
+              {wildcard.special === 'steal' ? t.wcStole(run.wildcardNote) : t.wcOut(run.wildcardNote)}
+            </div>
+          )}
         </div>
       )}
 

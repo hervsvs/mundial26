@@ -229,19 +229,19 @@ export const EVENTS: MatchEvent[] = [
     moment: 'previa', ratingDelta: 2, weight: 4, mood: 'bueno',
   },
   {
-    id: 'famoso-piedra', emoji: '🎤', title: 'Famoso drapie', titleEn: 'Bad luck celebrity',
+    id: 'famoso-piedra', emoji: '🧿', title: 'Famoso drapie', titleEn: 'Bad luck celebrity',
     text: 'Un famoso conocido por ser mufa, aparece en el estadio con la camiseta de tu rival.',
     textEn: 'A famous guy known for bringing bad luck shows up at the stadium wearing your rival\’s jersey.',
     moment: 'previa', ratingDelta: 18, weight: 20, mood: 'bueno',
   },
   {
-    id: 'gol invalido', emoji: '🎤', title: 'Gol invalido', titleEn: 'Not Valid Goal',
+    id: 'gol invalido', emoji: '🖥️', title: 'Gol invalido', titleEn: 'Not Valid Goal',
     text: 'Te meten un gol la moral cae al piso, el VAR descubre una falta en el incio de la jugada se revierte el gol',
     textEn: 'You concede a goal and morale drops to the floor, the VAR finds a foul at the start of the play and the goal gets overturned',
     moment: 'partido', ratingDelta: 7,  oppGoals: -1, weight: 10, mood: 'bueno',
   },
   {
-    id: 'papelito', emoji: '🎤', title: 'Maldición del Papelito', titleEn: 'Paper Curse',
+    id: 'papelito', emoji: '🧊', title: 'Maldición del Papelito', titleEn: 'Paper Curse',
     text: 'Millones de personas que te bancan, hacen la macumba de poner en el freezer al arquero rival',
     textEn: 'Millions of people who have your back perform the curse of putting the rival goalkeeper in the freezer',
     moment: 'previa', ratingDelta: 1, yourGoals: 3, weight: 12, mood: 'bueno',

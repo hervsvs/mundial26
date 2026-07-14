@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { EVENTS } from '../data/events'
 import { teamById } from '../data/teams'
 import { STAGE_LABEL, T, evTitle, teamName } from '../i18n'
-import { canvasToBlob, downloadImage, renderShareImage, shareWhatsApp } from '../lib/shareImage'
+import { canvasToBlob, renderShareImage, shareWhatsApp } from '../lib/shareImage'
 import { Flag } from '../components/Flag'
 import { YOUR_ID, useGame } from '../state/store'
 
@@ -105,9 +105,6 @@ export function End() {
 
       <div className="btn-row">
         <button className="btn btn-primary" onClick={nativeShare}>{t.whatsapp}</button>
-        <button className="btn" onClick={() => canvasRef.current && downloadImage(canvasRef.current, 'mundial26.png')}>
-          {t.download}
-        </button>
         <button className="btn" onClick={copyImage}>{t.copyImage}</button>
       </div>
       {shareMsg && <p className="hint">{shareMsg}</p>}

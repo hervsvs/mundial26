@@ -103,44 +103,113 @@ export function qualifiers(groupResults: GroupResult[]): { qualified: string[]; 
   return { qualified: [...winners, ...runners, ...bestThirds], thirdsQualified: new Set(bestThirds) }
 }
 
-// Orden de siembra estándar para una llave de 32 (1v32, 16v17, etc.)
-// Garantiza que los cruces se respeten hasta la final.
-function seedOrder(n: number): number[] {
-  let order = [1]
-  while (order.length < n) {
-    const next: number[] = []
-    const size = order.length * 2
-    for (const s of order) {
-      next.push(s, size + 1 - s)
+// ============================================================
+// LLAVE OFICIAL FIFA 2026 (Matches 73–104)
+// Cada partido de 16avos se alimenta de posiciones de grupo
+// específicas, y las llaves se conectan según el mapa real de
+// feeders (NO se emparejan llaves adyacentes genéricamente):
+//   Octavos:  M89=W74vW77 · M90=W73vW75 · M91=W76vW78 · M92=W79vW80
+//             M93=W83vW84 · M94=W81vW82 · M95=W86vW88 · M96=W85vW87
+//   Cuartos:  M97=W90vW89 · M98=W93vW94 · M99=W91vW92 · M100=W95vW96
+//   Semis:    M101=W97vW98 · M102=W99vW100 · 3er puesto y Final.
+// El array de 32 está ordenado como ÁRBOL para que la reducción por
+// pares reproduzca exactamente esas rutas.
+// ============================================================
+
+type R32Slot =
+  | { pos: 1 | 2; group: string } // 1 = ganador del grupo, 2 = segundo
+  | { third: string[] } // mejor tercero de alguno de estos grupos
+
+// Los 16 partidos de 16avos en orden de árbol:
+// [M73, M75] → M90 ─┐
+// [M74, M77] → M89 ─┴→ M97 ─┐
+// [M83, M84] → M93 ─┐       ├→ M101 (semi 1)
+// [M81, M82] → M94 ─┴→ M98 ─┘
+// [M76, M78] → M91 ─┐
+// [M79, M80] → M92 ─┴→ M99 ─┐
+// [M86, M88] → M95 ─┐       ├→ M102 (semi 2)
+// [M85, M87] → M96 ─┴→ M100 ┘
+const R32_TREE: [R32Slot, R32Slot][] = [
+  [{ pos: 2, group: 'A' }, { pos: 2, group: 'B' }],                 // M73
+  [{ pos: 1, group: 'F' }, { pos: 2, group: 'C' }],                 // M75
+  [{ pos: 1, group: 'E' }, { third: ['A', 'B', 'C', 'D', 'F'] }],   // M74
+  [{ pos: 1, group: 'I' }, { third: ['C', 'D', 'F', 'G', 'H'] }],   // M77
+  [{ pos: 2, group: 'K' }, { pos: 2, group: 'L' }],                 // M83
+  [{ pos: 1, group: 'H' }, { pos: 2, group: 'J' }],                 // M84
+  [{ pos: 1, group: 'D' }, { third: ['B', 'E', 'F', 'I', 'J'] }],   // M81
+  [{ pos: 1, group: 'G' }, { third: ['A', 'E', 'H', 'I', 'J'] }],   // M82
+  [{ pos: 1, group: 'C' }, { pos: 2, group: 'F' }],                 // M76
+  [{ pos: 2, group: 'E' }, { pos: 2, group: 'I' }],                 // M78
+  [{ pos: 1, group: 'A' }, { third: ['C', 'E', 'F', 'H', 'I'] }],   // M79
+  [{ pos: 1, group: 'L' }, { third: ['E', 'H', 'I', 'J', 'K'] }],   // M80
+  [{ pos: 1, group: 'J' }, { pos: 2, group: 'H' }],                 // M86
+  [{ pos: 2, group: 'D' }, { pos: 2, group: 'G' }],                 // M88
+  [{ pos: 1, group: 'B' }, { third: ['E', 'F', 'G', 'I', 'J'] }],   // M85
+  [{ pos: 1, group: 'K' }, { third: ['D', 'E', 'I', 'J', 'L'] }],   // M87
+]
+
+// Asigna los 8 mejores terceros a los 8 huecos de terceros respetando
+// qué grupos admite cada hueco (matching con backtracking; si alguna
+// combinación rara no tiene solución perfecta, rellena lo que quede).
+function assignThirds(thirdGroups: string[]): Map<number, string> {
+  const slots = R32_TREE.flatMap((m, mi) =>
+    m.map((s, si) => ('third' in s ? { key: mi * 2 + si, allowed: s.third } : null)),
+  ).filter((x): x is { key: number; allowed: string[] } => x !== null)
+
+  const result = new Map<number, string>()
+  const used = new Set<string>()
+  const solve = (i: number): boolean => {
+    if (i === slots.length) return true
+    for (const g of slots[i].allowed) {
+      if (thirdGroups.includes(g) && !used.has(g)) {
+        used.add(g)
+        result.set(slots[i].key, g)
+        if (solve(i + 1)) return true
+        used.delete(g)
+        result.delete(slots[i].key)
+      }
     }
-    order = next
+    return false
   }
-  return order
+  if (!solve(0)) {
+    // fallback: asignación libre de los que falten
+    const remaining = thirdGroups.filter(g => !used.has(g))
+    for (const s of slots) {
+      if (!result.has(s.key)) result.set(s.key, remaining.shift()!)
+    }
+  }
+  return result
 }
 
-// Construye la llave de 32avos. Los equipos se siembran por rendimiento
-// en la fase de grupos (1° de grupo arriba, terceros abajo).
-export function buildBracket(groupResults: GroupResult[], yourRating: number): string[] {
-  const { qualified } = qualifiers(groupResults)
-  const perf = new Map<string, Standing>()
-  for (const g of groupResults) for (const s of g.standings) perf.set(s.teamId, s)
+// Construye la llave de 16avos con el mapa oficial FIFA.
+export function buildBracket(groupResults: GroupResult[], _yourRating: number): string[] {
+  const byGroup = new Map(groupResults.map(g => [g.group, g.standings]))
+  const { thirdsQualified } = qualifiers(groupResults)
 
-  // Ranking de siembra: posición en el grupo primero, luego puntos/dif de gol
-  const posInGroup = (id: string) => {
-    for (const g of groupResults) {
-      const idx = g.standings.findIndex(s => s.teamId === id)
-      if (idx >= 0) return idx
+  // grupo de cada tercero clasificado
+  const thirdGroups: string[] = []
+  const thirdIdByGroup = new Map<string, string>()
+  for (const g of groupResults) {
+    const third = g.standings[2]
+    if (thirdsQualified.has(third.teamId)) {
+      thirdGroups.push(g.group)
+      thirdIdByGroup.set(g.group, third.teamId)
     }
-    return 3
   }
-  const ranked = [...qualified].sort((a, b) => {
-    const pa = posInGroup(a); const pb = posInGroup(b)
-    if (pa !== pb) return pa - pb
-    const sa = perf.get(a)!; const sb = perf.get(b)!
-    return sb.pts - sa.pts || sb.gd - sa.gd || sb.gf - sa.gf || ratingOf(b, yourRating) - ratingOf(a, yourRating)
-  })
+  const thirdAssignment = assignThirds(thirdGroups)
 
-  return seedOrder(32).map(seed => ranked[seed - 1])
+  const bracket: string[] = []
+  R32_TREE.forEach((match, mi) => {
+    match.forEach((slot, si) => {
+      if ('third' in slot) {
+        const group = thirdAssignment.get(mi * 2 + si)!
+        bracket.push(thirdIdByGroup.get(group)!)
+      } else {
+        bracket.push(byGroup.get(slot.group)![slot.pos - 1].teamId)
+      }
+    })
+  })
+  return bracket
 }
 
 // Nombres correctos: con 32 clasificados la primera ronda son los

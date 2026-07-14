@@ -23,6 +23,9 @@ export interface Wildcard {
   oppRatingDelta?: number
   yourGoals?: number
   special?: 'steal'
+  // true → deja afuera a la FIGURA del rival (el mejor jugador de campo
+  // disponible): se te informa quién es y NO te puede meter gol.
+  disablesOppStar?: boolean
   weight: number
 }
 
@@ -55,7 +58,7 @@ export const WILDCARDS: Wildcard[] = [
     id: 'doping-rival', emoji: '💉', title: 'Denuncia anónima', titleEn: 'Anonymous tip',
     text: 'Un "hincha preocupado" avisa a la AMA sobre el crack rival. Control sorpresa a las 7 AM: positivo. Baja sensible enfrente.',
     textEn: 'A "concerned fan" tips off WADA about the rival star. Surprise test at 7 AM: positive. Big absence on the other side.',
-    oppRatingDelta: -7, weight: 9,
+    oppRatingDelta: -7, disablesOppStar: true, weight: 9,
   },
   {
     id: 'escort', emoji: '💃', title: 'Visita nocturna', titleEn: 'Night visit',
@@ -67,7 +70,7 @@ export const WILDCARDS: Wildcard[] = [
     id: 'romper-estrella', emoji: '🦵', title: 'Cazar a la estrella', titleEn: 'Hunt the star',
     text: 'Orden táctica: a los 5 minutos tu volante "va a buscar" al crack rival. Objetivo cumplido... y ducha anticipada. Jugás con 10 pero ellos sin su figura.',
     textEn: 'Tactical order: in minute 5 your midfielder "goes looking for" the rival star. Mission accomplished... and an early shower. You play with 10 but they lose their star.',
-    oppRatingDelta: -7, ratingDelta: -4, weight: 8,
+    oppRatingDelta: -7, ratingDelta: -4, disablesOppStar: true, weight: 8,
   },
 ]
 

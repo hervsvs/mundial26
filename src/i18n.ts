@@ -80,6 +80,8 @@ export const T = {
     wildcardUse: '🃏 Usar en este partido',
     wildcardUsed: 'Comodín ya usado',
     wildcardArmed: '🃏 Comodín activado para este partido',
+    wcStole: (n: string) => `🥷 Te robaste a ${n}: juega para vos desde ahora.`,
+    wcOut: (n: string) => `🚫 ${n} queda afuera: no te puede meter gol.`,
     // fin de grupos
     groupEndTitle: (g: string) => `Así quedó el Grupo ${g}`,
     groupEndQualified: (pos: number) => `✅ ¡Clasificaste a 16avos! Terminaste ${pos}º en tu grupo.`,
@@ -195,6 +197,8 @@ export const T = {
     wildcardUse: '🃏 Use in this match',
     wildcardUsed: 'Wildcard already used',
     wildcardArmed: '🃏 Wildcard active for this match',
+    wcStole: (n: string) => `🥷 You stole ${n}: he plays for you from now on.`,
+    wcOut: (n: string) => `🚫 ${n} is out: he can't score against you.`,
     // fin de grupos
     groupEndTitle: (g: string) => `Final Group ${g} table`,
     groupEndQualified: (pos: number) => `✅ You're through to the Round of 32! You finished ${pos}${pos === 1 ? 'st' : pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th'} in your group.`,
